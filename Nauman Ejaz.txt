@@ -1,0 +1,80 @@
+import numpy as np
+
+grid_rows, grid_columns = 4, 5
+
+all_states = [(row, col) for row in range(grid_rows) for col in range(grid_columns)]
+
+possible_moves = ["up", "down", "left", "right"]
+
+reward_matrix = np.zeros((grid_rows, grid_columns))
+reward_matrix[0, 2] = -10
+reward_matrix[2, 3] = 5
+reward_matrix[3, 4] = 10
+
+discount_factor = 0.9
+
+def calculate_next_state(current_state, move):
+    row, col = current_state
+    if move == "up":
+        return (max(row - 1, 0), col), 1.0
+    elif move == "down":
+        return (min(row + 1, grid_rows - 1), col), 1.0
+    elif move == "left":
+        return (row, max(col - 1, 0)), 1.0
+    elif move == "right":
+        return (row, min(col + 1, grid_columns - 1)), 1.0
+    return current_state, 1.0
+
+initial_policy = {state: np.random.choice(possible_moves) for state in all_states}
+
+state_values = {state: 0 for state in all_states}
+
+def evaluate_current_policy(policy, state_values, rewards, gamma, tolerance=0.0001):
+    while True:
+        max_difference = 0
+        for state in all_states:
+            selected_move = policy[state]
+            next_state, probability = calculate_next_state(state, selected_move)
+            reward = rewards[next_state] + gamma * state_values[next_state]
+            updated_value = probability * reward
+            max_difference = max(max_difference, abs(updated_value - state_values[state]))
+            state_values[state] = updated_value
+        if max_difference < tolerance:
+            break
+    return state_values
+
+state_values = evaluate_current_policy(initial_policy, state_values, reward_matrix, discount_factor)
+print("State values after evaluation:")
+print(state_values)
+
+state_values = {state: 0 for state in all_states}
+
+def compute_optimal_policy(states, moves, rewards, gamma, tolerance=0.0001):
+    state_values = {state: 0 for state in states}
+    optimal_policy = {state: None for state in states}
+
+    while True:
+        max_difference = 0
+        for state in states:
+            move_values = {}
+            for move in moves:
+                next_state, probability = calculate_next_state(state, move)
+                reward = rewards[next_state] + gamma * state_values[next_state]
+                move_values[move] = probability * reward
+            best_move = max(move_values, key=move_values.get)
+            best_value = move_values[best_move]
+
+            max_difference = max(max_difference, abs(best_value - state_values[state]))
+            state_values[state] = best_value
+            optimal_policy[state] = best_move
+
+        if max_difference < tolerance:
+            break
+
+    return state_values, optimal_policy
+
+optimal_values, optimal_policy = compute_optimal_policy(all_states, possible_moves, reward_matrix, discount_factor)
+print("Optimal state values:")
+print(optimal_values)
+print("Optimal policy:")
+print(optimal_policy)

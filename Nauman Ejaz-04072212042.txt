@@ -1,0 +1,80 @@
+import numpy as np
+
+grid_height, grid_width = 4, 5
+
+positions = [(r, c) for r in range(grid_height) for c in range(grid_width)]
+
+directions = ["north", "south", "west", "east"]
+
+reward_grid = np.zeros((grid_height, grid_width))
+reward_grid[0, 2] = -10
+reward_grid[2, 3] = 5
+reward_grid[3, 4] = 10
+
+discount_rate = 0.9
+
+def get_next_position(position, direction):
+    r, c = position
+    if direction == "north":
+        return (max(r - 1, 0), c), 1.0
+    elif direction == "south":
+        return (min(r + 1, grid_height - 1), c), 1.0
+    elif direction == "west":
+        return (r, max(c - 1, 0)), 1.0
+    elif direction == "east":
+        return (r, min(c + 1, grid_width - 1)), 1.0
+    return position, 1.0
+
+current_policy = {pos: np.random.choice(directions) for pos in positions}
+
+value_estimates = {pos: 0 for pos in positions}
+
+def evaluate_policy(policy, values, rewards, gamma, tolerance=0.0001):
+    while True:
+        max_change = 0
+        for pos in positions:
+            chosen_direction = policy[pos]
+            next_pos, probability = get_next_position(pos, chosen_direction)
+            gain = rewards[next_pos] + gamma * values[next_pos]
+            new_value = probability * gain
+            max_change = max(max_change, abs(new_value - values[pos]))
+            values[pos] = new_value
+        if max_change < tolerance:
+            break
+    return values
+
+value_estimates = evaluate_policy(current_policy, value_estimates, reward_grid, discount_rate)
+print("State values after evaluation:")
+print(value_estimates)
+
+value_estimates = {pos: 0 for pos in positions}
+
+def find_optimal_policy(states, directions, rewards, gamma, tolerance=0.0001):
+    values = {pos: 0 for pos in states}
+    best_policy = {pos: None for pos in states}
+
+    while True:
+        max_change = 0
+        for pos in states:
+            direction_values = {}
+            for direction in directions:
+                next_pos, probability = get_next_position(pos, direction)
+                gain = rewards[next_pos] + gamma * values[next_pos]
+                direction_values[direction] = probability * gain
+            best_direction = max(direction_values, key=direction_values.get)
+            best_value = direction_values[best_direction]
+
+            max_change = max(max_change, abs(best_value - values[pos]))
+            values[pos] = best_value
+            best_policy[pos] = best_direction
+
+        if max_change < tolerance:
+            break
+
+    return values, best_policy
+
+optimal_values, optimal_policy = find_optimal_policy(positions, directions, reward_grid, discount_rate)
+print("Optimal state values:")
+print(optimal_values)
+print("Optimal policy:")
+print(optimal_policy)

@@ -1,0 +1,6 @@
+file,merchant,date,total,tesseract_chars,easyocr_chars
+receipt1.png,reset,Not Found,Not Found,123,140
+receipt2.png,SUPEA STORE,Not Found,Not Found,80,152
+receipt3.png,ciTvcasiscany,Not Found,Not Found,134,149
+receipt4.png,GAL hbeeutad,Not Found,Not Found,99,144
+receipt5.png,omrsne,Not Found,Not Found,126,148
