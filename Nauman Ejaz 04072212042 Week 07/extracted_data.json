@@ -1,0 +1,26 @@
+{
+  "invoice_number": "INV-2024-001",
+  "dates": [
+    "03/15/2024",
+    "March 30, 2024"
+  ],
+  "amounts": [
+    1250.5,
+    125.05,
+    1125.45
+  ],
+  "total_amount": 1250.5,
+  "invoice_date": "03/15/2024",
+  "persons": [
+    "John Smith"
+  ],
+  "organizations": [
+    "Acme Corporation"
+  ],
+  "locations": [
+    "New York"
+  ],
+  "money": [
+    "$1,250.50"
+  ]
+}
